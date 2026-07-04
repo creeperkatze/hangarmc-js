@@ -31,14 +31,9 @@ jobs:
               with:
                   images: ghcr.io/creeperkatze/hangarmc-js
                   tags: |
-                      type=raw,value=latest
-                      type=ref,event=branch
-                      type=sha
-                  labels: |
-                      org.opencontainers.image.title=hangarmc-js docs
-                      org.opencontainers.image.description=VitePress and TypeDoc site for hangarmc-js
-                      org.opencontainers.image.licenses=AGPL-3.0-only
-                      org.opencontainers.image.source=https://github.com/creeperkatze/hangarmc-js
+                      type=semver,pattern={{version}}
+                      type=semver,pattern={{major}}.{{minor}}
+                      type=semver,pattern={{major}}
 
             - name: Login to GitHub Container Registry
               uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
