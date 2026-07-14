@@ -4,15 +4,18 @@
   "description": "A framework-agnostic fully typed JavaScript client for the Hangar API by PaperMC",
   "homepage": "https://hangarmc-js.creeperkatze.dev",
   "type": "module",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist/"
   ],
+  "sideEffects": false,
   "scripts": {
     "build": "tsc",
     "docs:api": "typedoc --options typedoc.json",
@@ -37,6 +40,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/creeperkatze/hangarmc-js"
+  },
+  "bugs": {
+    "url": "https://github.com/creeperkatze/hangarmc-js/issues"
   },
   "author": "Creeperkatze",
   "license": "AGPL-3.0-only",
