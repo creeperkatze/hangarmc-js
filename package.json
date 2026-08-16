@@ -1,6 +1,6 @@
 {
   "name": "hangarmc-js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A framework-agnostic fully typed JavaScript client for the Hangar API by PaperMC",
   "homepage": "https://hangarmc-js.creeperkatze.dev",
   "type": "module",
