@@ -36,7 +36,7 @@ export class HangarClientCore {
     this.#apiKey = options.apiKey;
     this.#timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     this.#userAgent = options.userAgent;
-    this.#fetch = options.fetch ?? globalThis.fetch;
+    this.#fetch = options.fetch ?? globalThis.fetch.bind(globalThis);
   }
 
   /** Sends a request and parses the response body as JSON. */
