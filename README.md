@@ -193,4 +193,4 @@ Please ensure you run `pnpm lint:fix` before opening a pull request.
 
 ## 📜 License
 
-AGPL-3.0
+MIT

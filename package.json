@@ -45,26 +45,26 @@
     "url": "https://github.com/creeperkatze/hangarmc-js/issues"
   },
   "author": "Creeperkatze",
-  "license": "AGPL-3.0-only",
-  "packageManager": "pnpm@11.7.0+sha512.19cc852c120c7125760f2443ee6be0ca5b40f9f50598de1a09a1f177503e010e57c23c77646e01e761de59bf874fb22a3398c33ab9691fc13eb946b6f0f4d620",
+  "license": "MIT",
+  "packageManager": "pnpm@12.4.2+sha512.08adc6613180275c7c9edada39dcf08c9c61ad4e7eaf330a4f3461f102b0f907423454d117f98e72d47fef0616070644d7bffc973a6a57f5090a6d7c368b07c9",
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@lucide/vue": "^1.31.0",
+    "@lucide/vue": "^1.46.0",
     "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^26.2.0",
+    "@types/node": "^26.5.1",
     "@vitest/coverage-v8": "^3.2.7",
     "concurrently": "^10.0.5",
-    "eslint": "^10.8.1",
-    "globals": "^17.11.0",
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0",
     "tailwindcss": "^4.3.3",
     "typedoc": "^0.28.20",
-    "typedoc-plugin-markdown": "^4.12.0",
+    "typedoc-plugin-markdown": "^4.13.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.67.0",
-    "vite-svg-loader": "^5.1.1",
+    "typescript-eslint": "^8.70.0",
+    "vite-svg-loader": "^5.1.3",
     "vitepress": "^1.6.4",
     "vitest": "^3.2.7"
   }
