@@ -2,7 +2,6 @@ import { h } from 'vue';
 import DefaultTheme from 'vitepress/theme';
 
 import SponsorButton from './SponsorButton.vue';
-import './tailwind.css';
 import './custom.css';
 
 export default {

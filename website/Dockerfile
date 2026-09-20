@@ -6,15 +6,15 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json typedoc.json ./
 COPY src ./src
-COPY docs ./docs
+COPY website ./website
 COPY .git ./.git
 
 RUN corepack enable
 RUN pnpm install --frozen-lockfile
 
-RUN pnpm docs:build
+RUN pnpm website:build
 
 FROM caddy:alpine
 
-COPY docs/Caddyfile /etc/caddy/Caddyfile
-COPY --from=build /app/docs/.vitepress/dist/ /srv/
+COPY website/Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /app/website/.vitepress/dist/ /srv/

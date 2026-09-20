@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import tailwindcss from "@tailwindcss/vite";
 import svgLoader from "vite-svg-loader";
 import { defineConfig } from "vitepress";
 import { version } from "../../package.json";
@@ -27,7 +26,7 @@ function titleFromSlug(slug: string): string {
 }
 
 function readApiItems(section: string): SidebarItem[] {
-  const sectionDir = path.resolve(process.cwd(), "docs", "api", section);
+  const sectionDir = path.resolve(process.cwd(), "website", "api", section);
   if (!fs.existsSync(sectionDir)) {
     return [];
   }
@@ -67,11 +66,11 @@ const apiSidebar = [
   },
 ];
 
-const base = normalizeBase(process.env.DOCS_BASE ?? "/");
+const base = normalizeBase(process.env.WEBSITE_BASE ?? "/");
 
 export default defineConfig({
   vite: {
-    plugins: [tailwindcss(), svgLoader()],
+    plugins: [svgLoader()],
   },
   title: "hangarmc-js",
   description: "A framework-agnostic fully typed JavaScript client for the Hangar API by PaperMC.",
@@ -123,7 +122,7 @@ export default defineConfig({
     },
     lastUpdated: {},
     editLink: {
-      pattern: "https://github.com/creeperkatze/hangarmc-js/edit/main/docs/:path",
+      pattern: "https://github.com/creeperkatze/hangarmc-js/edit/main/website/:path",
     },
     socialLinks: [
       { icon: "github", link: "https://github.com/creeperkatze/hangarmc-js" },
