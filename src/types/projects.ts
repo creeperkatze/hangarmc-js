@@ -1,5 +1,6 @@
 import type { Platform } from './platforms.js';
 import type { PaginationOptions } from './base.js';
+import type { NamedPermission } from './permissions.js';
 
 /** Project category. */
 export type Category =
@@ -107,6 +108,8 @@ export interface ProjectSettings {
   donation: ProjectDonationSettings;
   links: LinkSection[];
   tags: Tag[];
+  /** Whether the project is reachable by link but left out of search, the homepage and profiles. */
+  unlisted: boolean;
 }
 
 /** The authenticated user's interactions with a project. */
@@ -114,14 +117,6 @@ export interface UserActions {
   starred: boolean;
   watching: boolean;
   flagged: boolean;
-}
-
-/** A compact role representation. */
-export interface CompactRole {
-  title: string;
-  color: Color;
-  category: string;
-  rank?: number;
 }
 
 /** A release channel for a project. */
@@ -143,6 +138,8 @@ export interface Project {
   visibility: Visibility;
   avatarUrl: string;
   createdAt: string;
+  /** The time the project's first version was published. */
+  publishedAt?: string | null;
   lastUpdated: string;
   mainPageContent: string;
   memberNames: string[];
@@ -166,11 +163,12 @@ export interface ProjectCompact {
   stats: ProjectStats;
 }
 
-/** A project member with their roles. */
+/** A project member with their title and granted permissions. */
 export interface ProjectMember {
   user: string;
   userId: number;
-  roles: CompactRole[];
+  title: string;
+  permissions: NamedPermission[];
 }
 
 /** Download and view stats for a single day. */

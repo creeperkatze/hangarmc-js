@@ -28,8 +28,19 @@ for (const project of results.result) {
 ## Members and channels
 
 ```ts
-const members = await client.projects.getMembers('PaperMC', 'Hangar');
+const members = await client.projects.getMembers('PaperMC', 'Hangar', { limit: 25 });
+for (const member of members.result) {
+  console.log(member.user, member.title, member.permissions);
+}
+
 const channels = await client.projects.getChannels('PaperMC', 'Hangar');
+```
+
+## Stargazers and watchers
+
+```ts
+const stargazers = await client.projects.getStargazers('PaperMC', 'Hangar');
+const watchers   = await client.projects.getWatchers('PaperMC', 'Hangar');
 ```
 
 ## Statistics
@@ -63,4 +74,7 @@ await client.pages.edit('PaperMC', 'Hangar', {
   path: 'setup',
   content: '# Setup\n\nContent here.',
 });
+
+// Edit the main page
+await client.pages.editMain('PaperMC', 'Hangar', '# Hangar\n\nNew description.');
 ```

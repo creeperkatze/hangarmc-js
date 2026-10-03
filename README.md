@@ -80,6 +80,7 @@ Pages:
 - `client.pages.getMain(author, slug)`
 - `client.pages.get(author, slug, path?)`
 - `client.pages.edit(author, slug, form)`
+- `client.pages.editMain(author, slug, content)`
 - `client.pages.delete(author, slug, path)`
 
 Permissions:
@@ -95,7 +96,9 @@ Projects:
 - `client.projects.list(options?)`
 - `client.projects.get(author, slug)`
 - `client.projects.getStats(author, slug, options)`
-- `client.projects.getMembers(author, slug)`
+- `client.projects.getMembers(author, slug, options?)`
+- `client.projects.getStargazers(author, slug, options?)`
+- `client.projects.getWatchers(author, slug, options?)`
 - `client.projects.getChannels(author, slug)`
 - `client.projects.getPinned(user)`
 - `client.projects.getStarred(user, options?)`

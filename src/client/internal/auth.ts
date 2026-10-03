@@ -19,6 +19,35 @@ export interface SettingsForm {
   [key: string]: unknown;
 }
 
+/** A registered WebAuthn authenticator. */
+export interface Authenticator {
+  id: string;
+  displayName: string;
+  addedAt: string;
+}
+
+/** A linked OAuth account. */
+export interface OAuthConnection {
+  id: string;
+  name: string;
+  provider: string;
+}
+
+/** Security settings of the current account. */
+export interface SettingsResponse {
+  authenticators: Authenticator[];
+  oauthConnections: OAuthConnection[];
+  hasBackupCodes: boolean;
+  hasTotp: boolean;
+  hasPassword: boolean;
+  emailConfirmed: boolean;
+  emailPending: boolean;
+  /** When the account is scheduled to be deleted, if a deletion was requested. */
+  deletionScheduledFor?: string | null;
+  ownedProjectCount: number;
+  ownedOrganizationCount: number;
+}
+
 /** Response containing a TOTP secret and QR code. */
 export interface SetupTotpResponse {
   secret: string;
@@ -122,9 +151,30 @@ export class InternalAuthApi {
     return this.core.requestVoid('internal/auth/refresh');
   }
 
-  /** Saves user settings. */
+  /** Returns the security settings of the current account. */
+  getSettings(): Promise<SettingsResponse> {
+    return this.core.requestJson<SettingsResponse>('internal/auth/settings', { method: 'POST' });
+  }
+
+  /**
+   * Saves user settings.
+   * @deprecated The endpoint does not accept a body and only returns the current settings. Use {@link getSettings} instead.
+   */
   saveSettings(form: SettingsForm): Promise<void> {
     return this.core.requestVoid('internal/auth/settings', { method: 'POST', body: form });
+  }
+
+  /** Schedules the current account for deletion. */
+  requestAccountDeletion(confirmation: string): Promise<void> {
+    return this.core.requestVoid('internal/auth/account/delete', {
+      method: 'POST',
+      body: { content: confirmation },
+    });
+  }
+
+  /** Cancels a pending deletion of the current account. */
+  cancelAccountDeletion(): Promise<void> {
+    return this.core.requestVoid('internal/auth/account/delete/cancel', { method: 'POST' });
   }
 
   /** Registers a new user account. */

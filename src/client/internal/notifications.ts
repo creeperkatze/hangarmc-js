@@ -13,8 +13,9 @@ export interface HangarNotification {
 
 /** A project or organization invite. */
 export interface ProjectInvite {
-  id: number;
-  role: string;
+  roleId: number;
+  title: string;
+  createdAt: string;
   name: string;
   url: string;
   representingOrg?: string;

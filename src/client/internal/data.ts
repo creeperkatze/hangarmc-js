@@ -1,4 +1,5 @@
 import type { HangarClientCore } from '../core.js';
+import type { NamedPermission } from '../../types/index.js';
 
 /** A project category entry. */
 export interface CategoryData {
@@ -35,6 +36,13 @@ export interface PermissionData {
   value: string;
   frontendName: string;
   permission: string;
+}
+
+/** A set of related permissions, presented together when editing a member. */
+export interface PermissionGroup {
+  /** i18n key suffix under `permissionGroup.`. */
+  name: string;
+  permissions: NamedPermission[];
 }
 
 /** A user prompt definition. */
@@ -114,9 +122,9 @@ export class InternalDataApi {
     return this.core.requestJson<string[]>('internal/data/loggedActions');
   }
 
-  /** Returns all organization roles. */
-  getOrganizationRoles(): Promise<RoleData[]> {
-    return this.core.requestJson<RoleData[]>('internal/data/orgRoles');
+  /** Returns the permission groups that can be granted to organization members. */
+  getOrganizationPermissionGroups(): Promise<PermissionGroup[]> {
+    return this.core.requestJson<PermissionGroup[]>('internal/data/organizationPermissions');
   }
 
   /** Returns all permission definitions. */
@@ -124,9 +132,9 @@ export class InternalDataApi {
     return this.core.requestJson<PermissionData[]>('internal/data/permissions');
   }
 
-  /** Returns all project roles. */
-  getProjectRoles(): Promise<RoleData[]> {
-    return this.core.requestJson<RoleData[]>('internal/data/projectRoles');
+  /** Returns the permission groups that can be granted to project members. */
+  getProjectPermissionGroups(): Promise<PermissionGroup[]> {
+    return this.core.requestJson<PermissionGroup[]>('internal/data/projectPermissions');
   }
 
   /** Returns all user prompts. */

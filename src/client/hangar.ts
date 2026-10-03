@@ -13,6 +13,7 @@ import {
   InternalAuthApi,
   InternalChannelsApi,
   InternalDataApi,
+  InternalDiscoveryApi,
   InternalFlagsApi,
   InternalGlobalDataApi,
   InternalHealthApi,
@@ -36,6 +37,7 @@ export interface InternalApis {
   readonly auth: InternalAuthApi;
   readonly channels: InternalChannelsApi;
   readonly data: InternalDataApi;
+  readonly discovery: InternalDiscoveryApi;
   readonly flags: InternalFlagsApi;
   readonly globalData: InternalGlobalDataApi;
   readonly health: InternalHealthApi;
@@ -94,6 +96,7 @@ export class HangarClient {
       auth: new InternalAuthApi(this.#core),
       channels: new InternalChannelsApi(this.#core),
       data: new InternalDataApi(this.#core),
+      discovery: new InternalDiscoveryApi(this.#core),
       flags: new InternalFlagsApi(this.#core),
       globalData: new InternalGlobalDataApi(this.#core),
       health: new InternalHealthApi(this.#core),

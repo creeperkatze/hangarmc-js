@@ -1,10 +1,21 @@
 ﻿import type { HangarClientCore } from '../core.js';
-import type { ApiKey, NamedPermission } from '../../types/index.js';
+import type { ApiKey, NamedPermission, ProjectNamespace } from '../../types/index.js';
 
 /** Form for creating an API key. */
 export interface CreateAPIKeyForm {
   name: string;
   permissions: NamedPermission[];
+  /** Point in time at which the key stops working. Omit for a key that never expires. */
+  expiresAt?: string;
+  /** Slugs of the projects the key may be used on (max 100). Omit to allow all projects. */
+  projects?: string[];
+}
+
+/** A project an API key can be scoped to. */
+export interface ScopableProject {
+  name: string;
+  namespace: ProjectNamespace;
+  avatarUrl: string;
 }
 
 /** A plain string payload. */
@@ -51,6 +62,13 @@ export class InternalApiKeysApi {
   getPossiblePermissions(user: string): Promise<NamedPermission[]> {
     return this.core.requestJson<NamedPermission[]>(
       `internal/api-keys/possible-perms/${encodeURIComponent(user)}`,
+    );
+  }
+
+  /** Returns all projects an API key for a user can be scoped to. */
+  getPossibleProjects(user: string): Promise<ScopableProject[]> {
+    return this.core.requestJson<ScopableProject[]>(
+      `internal/api-keys/possible-projects/${encodeURIComponent(user)}`,
     );
   }
 }

@@ -16,7 +16,6 @@ export type NamedPermission =
   | 'edit_channels'
   | 'create_organization'
   | 'delete_organization'
-  | 'post_as_organization'
   | 'mod_notes_and_flags'
   | 'see_hidden'
   | 'is_staff'

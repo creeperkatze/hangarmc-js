@@ -7,8 +7,9 @@ import type {
   DayProjectStats,
   GetProjectsOptions,
   GetProjectStatsOptions,
+  User,
 } from '../types/index.js';
-import type { PaginatedResult } from '../types/base.js';
+import type { PaginatedResult, PaginationOptions } from '../types/base.js';
 
 /** API namespace for projects. */
 export class ProjectsApi {
@@ -34,10 +35,27 @@ export class ProjectsApi {
     );
   }
 
-  /** Returns all members of a project. */
-  getMembers(author: string, slug: string): Promise<ProjectMember[]> {
-    return this.core.requestJson<ProjectMember[]>(
+  /** Returns the members of a project (paginated). */
+  getMembers(author: string, slug: string, options?: PaginationOptions): Promise<PaginatedResult<ProjectMember>> {
+    return this.core.requestJson<PaginatedResult<ProjectMember>>(
       `v1/projects/${encodeURIComponent(author)}/${encodeURIComponent(slug)}/members`,
+      { query: options },
+    );
+  }
+
+  /** Returns the users who starred a project (paginated). */
+  getStargazers(author: string, slug: string, options?: PaginationOptions): Promise<PaginatedResult<User>> {
+    return this.core.requestJson<PaginatedResult<User>>(
+      `v1/projects/${encodeURIComponent(author)}/${encodeURIComponent(slug)}/stargazers`,
+      { query: options },
+    );
+  }
+
+  /** Returns the users who watch a project (paginated). */
+  getWatchers(author: string, slug: string, options?: PaginationOptions): Promise<PaginatedResult<User>> {
+    return this.core.requestJson<PaginatedResult<User>>(
+      `v1/projects/${encodeURIComponent(author)}/${encodeURIComponent(slug)}/watchers`,
+      { query: options },
     );
   }
 

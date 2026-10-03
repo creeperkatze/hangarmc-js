@@ -24,7 +24,15 @@ export class PagesApi {
   edit(author: string, slug: string, form: PageEditForm): Promise<void> {
     return this.core.requestVoid(
       `v1/pages/edit/${encodeURIComponent(author)}/${encodeURIComponent(slug)}`,
-      { method: 'POST', body: form, authenticated: true },
+      { method: 'PATCH', body: form, authenticated: true },
+    );
+  }
+
+  /** Updates the main page of a project. Requires edit_page permission. */
+  editMain(author: string, slug: string, content: string): Promise<void> {
+    return this.core.requestVoid(
+      `v1/pages/editmain/${encodeURIComponent(author)}/${encodeURIComponent(slug)}`,
+      { method: 'PATCH', body: { content }, authenticated: true },
     );
   }
 

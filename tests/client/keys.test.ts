@@ -10,6 +10,8 @@ const MOCK_KEY: ApiKey = {
   createdAt: '2024-01-01T00:00:00Z',
   tokenIdentifier: 'abc123',
   permissions: ['view_public_info'],
+  projectScoped: false,
+  projects: [],
 };
 
 describe('KeysApi', () => {
@@ -32,6 +34,18 @@ describe('KeysApi', () => {
     expect(token).toBe('new-secret');
     expect(mockFetch.lastCall()?.method).toBe('POST');
     expect(mockFetch.lastCall()?.url).toContain('/api/v1/keys/TestUser');
+  });
+
+  it('sends expiration and project scope when creating a key', async () => {
+    const { client, mockFetch } = createTestClient([jsonResponse(MOCK_JWT), jsonResponse('scoped-secret')]);
+    const form = {
+      name: 'ScopedKey',
+      permissions: ['create_version' as const],
+      expiresAt: '2027-01-01T00:00:00Z',
+      projects: ['TestPlugin'],
+    };
+    await client.keys.create('TestUser', form);
+    expect(await mockFetch.lastCall()?.json()).toEqual(form);
   });
 
   it('deletes an API key by name', async () => {

@@ -1,4 +1,5 @@
 import type { HangarClientCore } from '../core.js';
+import type { NamedPermission } from '../../types/index.js';
 
 /** Form for creating an organization. */
 export interface CreateOrganizationForm {
@@ -15,31 +16,56 @@ export interface Organization {
   members: OrganizationMember[];
 }
 
+/** A user's membership in an organization. */
+export interface OrganizationRole {
+  id: number;
+  createdAt: string;
+  userId: number;
+  principalId: number;
+  ownerId: number;
+  ownerName: string;
+  avatarUrl: string;
+  uuid: string;
+  title: string;
+  permissions: NamedPermission[];
+  /** Whether the user owns the organization. */
+  owner: boolean;
+  accepted: boolean;
+}
+
+/** User details of an organization member. */
+export interface OrganizationMemberUser {
+  id: number;
+  userId: number;
+  uuid: string;
+  name: string;
+  tagline?: string;
+  avatarUrl: string;
+  createdAt: string;
+  locked: boolean;
+  organization: boolean;
+  socials: unknown;
+}
+
 /** An organization member entry. */
 export interface OrganizationMember {
-  user: string;
-  userId: number;
-  role: string;
+  user: OrganizationMemberUser;
+  role: OrganizationRole;
   hidden: boolean;
 }
 
 /** Form for adding or editing an organization member. */
 export interface EditOrganizationMemberForm {
-  role: string;
   name: string;
+  /** Permissions granted to the member. */
+  permissions?: NamedPermission[];
+  /** Display title of the member (max 32 characters). */
+  title?: string;
 }
 
 /** Form for transferring ownership. */
 export interface TransferForm {
   to: string;
-}
-
-/** A user's role within an organization. */
-export interface OrganizationRoleData {
-  organization: string;
-  role: string;
-  accepted: boolean;
-  hidden: boolean;
 }
 
 /** Internal API namespace for organizations. */
@@ -156,9 +182,9 @@ export class InternalOrganizationsApi {
     );
   }
 
-  /** Returns the organization roles for a user. */
-  getUserOrganizationRoles(user: string): Promise<OrganizationRoleData[]> {
-    return this.core.requestJson<OrganizationRoleData[]>(
+  /** Returns the organization memberships of a user, keyed by organization name. */
+  getUserOrganizationRoles(user: string): Promise<Record<string, OrganizationRole>> {
+    return this.core.requestJson<Record<string, OrganizationRole>>(
       `internal/organizations/${encodeURIComponent(user)}/userOrganizations`,
     );
   }

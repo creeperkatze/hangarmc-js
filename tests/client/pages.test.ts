@@ -32,7 +32,7 @@ describe('PagesApi', () => {
     expect(mockFetch.lastCall()?.url).toContain('Test%20Plugin');
   });
 
-  it('edits a page with POST and requires auth', async () => {
+  it('edits a page with PATCH and requires auth', async () => {
     const { client, mockFetch } = createTestClient([
       jsonResponse(MOCK_JWT),
       new Response(null, { status: 204 }),
@@ -40,9 +40,22 @@ describe('PagesApi', () => {
     await expect(
       client.pages.edit('PaperMC', 'TestPlugin', { path: 'docs', content: '## Content' }),
     ).resolves.toBeUndefined();
-    expect(mockFetch.lastCall()?.method).toBe('POST');
+    expect(mockFetch.lastCall()?.method).toBe('PATCH');
     expect(mockFetch.lastCall()?.url).toContain('/api/v1/pages/edit/PaperMC/TestPlugin');
     expect(mockFetch.lastCall()?.headers.get('Authorization')).toBe('HangarAuth test-jwt');
+  });
+
+  it('edits the main page with PATCH and requires auth', async () => {
+    const { client, mockFetch } = createTestClient([
+      jsonResponse(MOCK_JWT),
+      new Response(null, { status: 204 }),
+    ]);
+    await expect(client.pages.editMain('PaperMC', 'TestPlugin', '# Main')).resolves.toBeUndefined();
+    const call = mockFetch.lastCall();
+    expect(call?.method).toBe('PATCH');
+    expect(call?.url).toContain('/api/v1/pages/editmain/PaperMC/TestPlugin');
+    expect(call?.headers.get('Authorization')).toBe('HangarAuth test-jwt');
+    expect(await call?.json()).toEqual({ content: '# Main' });
   });
 
   it('deletes a page with DELETE and requires auth', async () => {

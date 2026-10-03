@@ -1,5 +1,16 @@
 import type { HangarClientCore } from '../core.js';
 import type { FlagReason } from '../../types/index.js';
+import type { PaginatedResult, PaginationOptions } from '../../types/base.js';
+
+/** Options for listing resolved flags. */
+export interface GetResolvedFlagsOptions extends PaginationOptions {
+  sort?: 'flagResolved' | 'flagCreated';
+}
+
+/** Options for listing unresolved flags. */
+export interface GetUnresolvedFlagsOptions extends PaginationOptions {
+  sort?: 'flagCreated';
+}
 
 /** Form for submitting a project flag. */
 export interface FlagForm {
@@ -37,14 +48,14 @@ export class InternalFlagsApi {
     return this.core.requestVoid('internal/flags/', { method: 'POST', body: form });
   }
 
-  /** Returns all resolved flags. */
-  getResolvedFlags(): Promise<Flag[]> {
-    return this.core.requestJson<Flag[]>('internal/flags/resolved');
+  /** Returns resolved flags (paginated). */
+  getResolvedFlags(options?: GetResolvedFlagsOptions): Promise<PaginatedResult<Flag>> {
+    return this.core.requestJson<PaginatedResult<Flag>>('internal/flags/resolved', { query: options });
   }
 
-  /** Returns all unresolved flags. */
-  getUnresolvedFlags(): Promise<Flag[]> {
-    return this.core.requestJson<Flag[]>('internal/flags/unresolved');
+  /** Returns unresolved flags (paginated). */
+  getUnresolvedFlags(options?: GetUnresolvedFlagsOptions): Promise<PaginatedResult<Flag>> {
+    return this.core.requestJson<PaginatedResult<Flag>>('internal/flags/unresolved', { query: options });
   }
 
   /** Returns the count of unresolved flags. */

@@ -1,5 +1,6 @@
 import type { HangarClientCore } from '../core.js';
 import type { PaginatedResult } from '../../types/base.js';
+import type { Platform, ProjectNamespace } from '../../types/index.js';
 
 /** Flag activity record for a user. */
 export interface FlagActivity {
@@ -32,10 +33,50 @@ export interface DayStats {
   day: string;
   reviews: number;
   uploads: number;
-  origDownloads: number;
-  unsafeDownloads: number;
+  downloads: number;
+  views: number;
+  newUsers: number;
+  newProjects: number;
+  flagsOpened: number;
+  flagsClosed: number;
+}
+
+/** Site-wide totals for the admin stats summary. */
+export interface StatsTotals {
+  users: number;
+  projects: number;
+  versions: number;
+  downloads: number;
+  views: number;
   openFlags: number;
-  closedFlags: number;
+  pendingReviews: number;
+}
+
+/** Download count for a single platform. */
+export interface PlatformDownloads {
+  platform: Platform;
+  downloads: number;
+}
+
+/** A top project entry in the admin stats summary. */
+export interface TopProject {
+  namespace: ProjectNamespace;
+  downloads: number;
+  views: number;
+}
+
+/** Aggregated admin statistics for a date range. */
+export interface StatsSummary {
+  totals: StatsTotals;
+  platformDownloads: PlatformDownloads[];
+  topProjects: TopProject[];
+}
+
+/** The type of action recorded in an action log entry. */
+export interface LogAction {
+  name: string;
+  description: string;
+  pgLoggedAction: string;
 }
 
 /** An admin action log entry. */
@@ -47,13 +88,18 @@ export interface HangarLoggedAction {
   version: unknown;
   page: unknown;
   subject: unknown;
-  action: unknown;
+  action: LogAction;
   contextType: string;
   address: unknown;
 }
 
 /** Options for filtering the admin action log. */
 export interface GetActionLogOptions {
+  sort?: 'time';
+  /** Only include entries created on or after this date. */
+  dateFrom?: string;
+  /** Only include entries created on or before this date. */
+  dateTo?: string;
   logAction?: string;
   pageId?: string;
   projectSlug?: string;
@@ -155,9 +201,24 @@ export class InternalAdminApi {
     });
   }
 
+  /** Returns aggregated statistics (totals, platform downloads, top projects) for a date range. */
+  getStatsSummary(from?: string, to?: string): Promise<StatsSummary> {
+    return this.core.requestJson<StatsSummary>('internal/admin/stats/summary', {
+      query: { from, to },
+    });
+  }
+
   /** Recomputes file hashes for all versions. */
   updateHashes(): Promise<string[]> {
     return this.core.requestJson<string[]>('internal/admin/updateHashes', { method: 'POST' });
+  }
+
+  /** Renames a user. */
+  renameUser(user: string, newName: string): Promise<void> {
+    return this.core.requestVoid(
+      `internal/admin/user/${encodeURIComponent(user)}/rename`,
+      { method: 'POST', body: { content: newName } },
+    );
   }
 
   /** Removes a global role from a user. */

@@ -14,6 +14,11 @@ export class InternalUsersApi {
     return this.core.requestJson<User>('internal/users/@me');
   }
 
+  /** Marks the latest changelog as seen by the current user. */
+  markChangelogSeen(): Promise<void> {
+    return this.core.requestVoid('internal/users/settings/changelogSeen', { method: 'POST' });
+  }
+
   getPossibleAltAccounts(userName: string): Promise<string[]> {
     return this.core.requestJson<string[]>(
       `internal/users/${encodeURIComponent(userName)}/alts`,

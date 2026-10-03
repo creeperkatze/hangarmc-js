@@ -1,5 +1,5 @@
 import type { HangarClientCore } from '../core.js';
-import type { Category, Visibility } from '../../types/index.js';
+import type { Category, LinkSection, NamedPermission, Visibility } from '../../types/index.js';
 
 /** Form for creating a project. */
 export interface CreateProjectForm {
@@ -11,9 +11,13 @@ export interface CreateProjectForm {
   ownerId: number;
 }
 
+/** Form for adding or editing a project member. */
 export interface EditProjectMemberForm {
-  role: string;
   name: string;
+  /** Permissions granted to the member. */
+  permissions?: NamedPermission[];
+  /** Display title of the member (max 32 characters). */
+  title?: string;
 }
 
 export interface TransferForm {
@@ -145,19 +149,29 @@ export class InternalProjectsApi {
     );
   }
 
-  resetIcon(slugOrId: string): Promise<void> {
-    return this.core.requestVoid(
+  /** Resets the project icon and returns the new avatar URL. */
+  resetIcon(slugOrId: string): Promise<string> {
+    return this.core.requestJson<string>(
       `internal/projects/project/${encodeURIComponent(slugOrId)}/resetIcon`,
       { method: 'POST', body: {} },
     );
   }
 
-  saveIcon(slugOrId: string, icon: Blob): Promise<void> {
+  /** Uploads a new project icon and returns the new avatar URL. */
+  saveIcon(slugOrId: string, icon: Blob): Promise<string> {
     const form = new FormData();
     form.set('projectIcon', icon);
-    return this.core.requestVoid(
+    return this.core.requestJson<string>(
       `internal/projects/project/${encodeURIComponent(slugOrId)}/saveIcon`,
       { method: 'POST', body: form },
+    );
+  }
+
+  /** Replaces the link sections of a project. */
+  saveLinks(slugOrId: string, links: LinkSection[]): Promise<void> {
+    return this.core.requestVoid(
+      `internal/projects/project/${encodeURIComponent(slugOrId)}/links`,
+      { method: 'POST', body: { links } },
     );
   }
 

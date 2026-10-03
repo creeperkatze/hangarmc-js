@@ -3,6 +3,7 @@ export { InternalApiKeysApi } from './apiKeys.js';
 export { InternalAuthApi } from './auth.js';
 export { InternalChannelsApi } from './channels.js';
 export { InternalDataApi } from './data.js';
+export { InternalDiscoveryApi } from './discovery.js';
 export { InternalFlagsApi } from './flags.js';
 export { InternalGlobalDataApi } from './globalData.js';
 export { InternalHealthApi } from './health.js';
