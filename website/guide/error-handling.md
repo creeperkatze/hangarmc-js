@@ -29,7 +29,7 @@ try {
 
 - `401` - missing or invalid API key
 - `403` - insufficient permissions for the requested operation
-- `404` - the requested resource does not exist
+- `404` - the requested resource does not exist, or you lack the permission to see it.
 - `0` - the request never reached the server (network error, timeout, DNS failure)
 
 ## Distinguishing error types

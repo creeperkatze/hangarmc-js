@@ -184,9 +184,20 @@ export interface FlagForm {
   comment: string;
 }
 
+/** Field to sort project lists by. */
+export type ProjectSort =
+  | 'views'
+  | 'downloads'
+  | 'newest'
+  | 'stars'
+  | 'updated'
+  | 'recent_downloads'
+  | 'recent_views'
+  | 'slug';
+
 /** Query parameters for listing/searching projects. */
 export interface GetProjectsOptions extends PaginationOptions {
-  sort?: 'views' | 'downloads' | 'newest' | 'stars' | 'updated' | 'recent_downloads' | 'recent_views' | 'slug';
+  sort?: ProjectSort;
   category?: string;
   platform?: Platform | string;
   owner?: string;
@@ -201,8 +212,15 @@ export interface GetProjectsOptions extends PaginationOptions {
   prioritizeExactMatch?: boolean;
 }
 
+/** Query parameters for listing a user's starred or watched projects. */
+export interface GetUserProjectsOptions extends PaginationOptions {
+  sort?: ProjectSort;
+}
+
 /** Query parameters for getting project stats. */
 export interface GetProjectStatsOptions {
+  /** First date to include, as an ISO 8601 date-time (e.g. `2024-01-01T00:00:00Z`). */
   fromDate: string;
+  /** Last date to include, as an ISO 8601 date-time. */
   toDate: string;
 }

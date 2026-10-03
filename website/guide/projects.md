@@ -25,15 +25,13 @@ for (const project of results.result) {
 }
 ```
 
-## Members and channels
+## Members
 
 ```ts
 const members = await client.projects.getMembers('PaperMC', 'Hangar', { limit: 25 });
 for (const member of members.result) {
   console.log(member.user, member.title, member.permissions);
 }
-
-const channels = await client.projects.getChannels('PaperMC', 'Hangar');
 ```
 
 ## Stargazers and watchers
@@ -45,12 +43,12 @@ const watchers   = await client.projects.getWatchers('PaperMC', 'Hangar');
 
 ## Statistics
 
-Fetch daily view and download counts between two dates:
+Fetch daily view and download counts between two dates. Requires an API key with membership in the project, and dates must be ISO 8601 date-times:
 
 ```ts
 const stats = await client.projects.getStats('PaperMC', 'Hangar', {
-  fromDate: '2024-01-01',
-  toDate: '2024-01-31',
+  fromDate: '2024-01-01T00:00:00Z',
+  toDate: '2024-01-31T00:00:00Z',
 });
 // stats['2024-01-15'] → { views: number, downloads: number }
 ```

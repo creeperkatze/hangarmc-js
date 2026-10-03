@@ -34,33 +34,24 @@ const buffer = await client.versions.download('PaperMC', 'Hangar', '1.2.3', 'PAP
 
 ## Statistics
 
-Fetch daily download counts between two dates:
+Fetch daily download counts between two dates. Requires an API key with membership in the project, and dates must be ISO 8601 date-times:
 
 ```ts
 const stats = await client.versions.getStats('PaperMC', 'Hangar', '1.2.3', {
-  fromDate: '2024-01-01',
-  toDate: '2024-01-31',
+  fromDate: '2024-01-01T00:00:00Z',
+  toDate: '2024-01-31T00:00:00Z',
 });
 ```
 
 ## Upload a version
 
-Upload a new version with one or more platform files.
+Upload a new version with one or more platform files. Entries in `files` without an `externalUrl` are matched to the uploaded files in order.
 
 ```ts
-await client.versions.create('PaperMC', 'Hangar', {
-  channel: { name: 'Release', color: '#22c55e', flags: [] },
+const { url } = await client.versions.create('PaperMC', 'Hangar', {
+  version: '1.2.3',
+  channel: 'Release',
+  files: [{ platforms: ['PAPER'] }],
   platformDependencies: { PAPER: ['1.20', '1.21'] },
-  pluginDependencies: {},
 }, [paperFile]);
-```
-
-## Delete and restore
-
-```ts
-// Soft-delete (moves to trash)
-await client.versions.delete('PaperMC', 'Hangar', '1.2.3');
-
-// Restore a soft-deleted version (requires restore_version permission)
-await client.versions.restore('PaperMC', 'Hangar', '1.2.3');
 ```

@@ -1,8 +1,11 @@
 import type { HangarClientCore } from './core.js';
+import { HangarError } from '../errors.js';
 import type {
   Version,
   VersionUpload,
-  DayProjectStats,
+  VersionStats,
+  UploadedVersion,
+  Platform,
   ListVersionsOptions,
   GetVersionStatsOptions,
 } from '../types/index.js';
@@ -31,13 +34,16 @@ export class VersionsApi {
     );
   }
 
-  /** Uploads a new version. Requires create_version permission. */
+  /**
+   * Uploads a new version. Requires create_version permission.
+   * @param files - Version files in the order of the entries in `data.files` that have no `externalUrl`.
+   */
   create(
     author: string,
     slug: string,
     data: VersionUpload,
-    files?: File[],
-  ): Promise<void> {
+    files?: Blob[],
+  ): Promise<UploadedVersion> {
     const form = new FormData();
     form.set('versionUpload', new Blob([JSON.stringify(data)], { type: 'application/json' }));
     if (files) {
@@ -45,51 +51,42 @@ export class VersionsApi {
         form.append('files', file);
       }
     }
-    return this.core.requestVoid(
-      `v1/projects/${encodeURIComponent(author)}/${encodeURIComponent(slug)}/versions`,
+    return this.core.requestJson<UploadedVersion>(
+      `v1/projects/${encodeURIComponent(author)}/${encodeURIComponent(slug)}/upload`,
       { method: 'POST', body: form, authenticated: true },
     );
   }
 
-  /** Deletes a version. Requires `delete_version` permission. */
-  delete(author: string, slug: string, name: string): Promise<void> {
-    return this.core.requestVoid(
-      `v1/projects/${encodeURIComponent(author)}/${encodeURIComponent(slug)}/versions/${encodeURIComponent(name)}`,
-      { method: 'DELETE', authenticated: true },
-    );
-  }
-
-  /** Restores a soft-deleted version. Requires `restore_version` permission. */
-  restore(author: string, slug: string, name: string): Promise<void> {
-    return this.core.requestVoid(
-      `v1/projects/${encodeURIComponent(author)}/${encodeURIComponent(slug)}/versions/${encodeURIComponent(name)}/restore`,
-      { method: 'POST', authenticated: true },
-    );
-  }
-
-  /** Returns daily download stats for a version between two dates (YYYY-MM-DD format). */
+  /**
+   * Returns daily download stats for a version, keyed by date. Requires is_subject_member permission.
+   * Dates must be ISO 8601 date-times (e.g. `2024-01-01T00:00:00Z`).
+   */
   getStats(
     author: string,
     slug: string,
     name: string,
     options: GetVersionStatsOptions,
-  ): Promise<Record<string, DayProjectStats>> {
-    return this.core.requestJson<Record<string, DayProjectStats>>(
+  ): Promise<Record<string, VersionStats>> {
+    return this.core.requestJson<Record<string, VersionStats>>(
       `v1/projects/${encodeURIComponent(author)}/${encodeURIComponent(slug)}/versions/${encodeURIComponent(name)}/stats`,
-      { query: options },
+      { query: options, authenticated: true },
     );
   }
 
-  /** Returns the download URL for a version on a specific platform. */
-  getDownloadUrl(
+  /** Returns the download URL (Hangar CDN or external) for a version on a specific platform. */
+  async getDownloadUrl(
     author: string,
     slug: string,
     name: string,
-    platform: string,
+    platform: Platform | string,
   ): Promise<string> {
-    return this.core.requestText(
-      `v1/projects/${encodeURIComponent(author)}/${encodeURIComponent(slug)}/versions/${encodeURIComponent(name)}/${encodeURIComponent(platform)}/download`,
-    );
+    const version = await this.get(author, slug, name);
+    const download = version.downloads[platform];
+    const url = download?.downloadUrl ?? download?.externalUrl;
+    if (!url) {
+      throw new HangarError(`Version ${name} has no download for platform ${platform}`);
+    }
+    return url;
   }
 
   /** Downloads a version file as an ArrayBuffer. */
@@ -97,7 +94,7 @@ export class VersionsApi {
     author: string,
     slug: string,
     name: string,
-    platform: string,
+    platform: Platform | string,
   ): Promise<ArrayBuffer> {
     return this.core.requestArrayBuffer(
       `v1/projects/${encodeURIComponent(author)}/${encodeURIComponent(slug)}/versions/${encodeURIComponent(name)}/${encodeURIComponent(platform)}/download`,

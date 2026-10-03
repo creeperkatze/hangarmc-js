@@ -12,7 +12,7 @@ describe('HangarClientCore authentication', () => {
       jsonResponse(MOCK_SESSION),
       jsonResponse([]),
     ]);
-    await client.keys.list('TestUser');
+    await client.keys.list();
     expect(mockFetch.callCount()).toBe(2);
     expect(mockFetch.calls[0].url).toContain('/api/v1/authenticate');
     expect(mockFetch.calls[1].headers.get('Authorization')).toBe('HangarAuth test-jwt');
@@ -24,21 +24,21 @@ describe('HangarClientCore authentication', () => {
       jsonResponse([]),
       jsonResponse([]),
     ]);
-    await client.keys.list('TestUser');
-    await client.keys.list('TestUser');
+    await client.keys.list();
+    await client.keys.list();
     expect(mockFetch.callCount()).toBe(3);
     expect(mockFetch.calls[0].url).toContain('/api/v1/authenticate');
   });
 
   it('throws HangarError on non-ok response', async () => {
     const { client } = createTestClient([errorResponse(401)]);
-    await expect(client.platforms.list()).rejects.toThrow(HangarError);
+    await expect(client.platforms.getVersions('PAPER')).rejects.toThrow(HangarError);
   });
 
   it('throws HangarError with message from response body', async () => {
     const { client } = createTestClient([errorResponse(403, { message: 'Forbidden' })]);
     try {
-      await client.platforms.list();
+      await client.platforms.getVersions('PAPER');
     } catch (err) {
       expect(err).toBeInstanceOf(HangarError);
       expect((err as HangarError).message).toBe('Forbidden');
@@ -56,15 +56,15 @@ describe('HangarClientCore default fetch binding', () => {
 
   it('invokes the default globalThis.fetch with a `this` receiver it accepts', async () => {
     // Simulates a browser's branded fetch, which throws "Illegal invocation" if `this` isn't `window`.
-    globalThis.fetch = function () {
+    globalThis.fetch = function (this: unknown) {
       if (this !== globalThis) {
         throw new TypeError("Failed to execute 'fetch' on 'Window': Illegal invocation");
       }
-      return Promise.resolve(jsonResponse({}));
+      return Promise.resolve(jsonResponse([]));
     } as typeof fetch;
 
     const client = new HangarClient();
 
-    await expect(client.platforms.list()).resolves.toEqual({});
+    await expect(client.platforms.getVersions('PAPER')).resolves.toEqual([]);
   });
 });

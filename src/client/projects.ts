@@ -3,10 +3,10 @@ import type {
   Project,
   ProjectCompact,
   ProjectMember,
-  ProjectChannel,
   DayProjectStats,
   GetProjectsOptions,
   GetProjectStatsOptions,
+  GetUserProjectsOptions,
   User,
 } from '../types/index.js';
 import type { PaginatedResult, PaginationOptions } from '../types/base.js';
@@ -27,11 +27,14 @@ export class ProjectsApi {
     );
   }
 
-  /** Returns daily view/download stats for a project between two dates (YYYY-MM-DD format). */
+  /**
+   * Returns daily view/download stats for a project, keyed by date. Requires is_subject_member permission.
+   * Dates must be ISO 8601 date-times (e.g. `2024-01-01T00:00:00Z`).
+   */
   getStats(author: string, slug: string, options: GetProjectStatsOptions): Promise<Record<string, DayProjectStats>> {
     return this.core.requestJson<Record<string, DayProjectStats>>(
       `v1/projects/${encodeURIComponent(author)}/${encodeURIComponent(slug)}/stats`,
-      { query: options },
+      { query: options, authenticated: true },
     );
   }
 
@@ -59,32 +62,25 @@ export class ProjectsApi {
     );
   }
 
-  /** Returns the release channels for a project. */
-  getChannels(author: string, slug: string): Promise<ProjectChannel[]> {
-    return this.core.requestJson<ProjectChannel[]>(
-      `v1/projects/${encodeURIComponent(author)}/${encodeURIComponent(slug)}/channels`,
-    );
-  }
-
-  /** Returns projects pinned/starred by the given user. */
+  /** Returns projects pinned by the given user. */
   getPinned(user: string): Promise<ProjectCompact[]> {
     return this.core.requestJson<ProjectCompact[]>(
-      `v1/projects/${encodeURIComponent(user)}/pinned`,
+      `v1/users/${encodeURIComponent(user)}/pinned`,
     );
   }
 
   /** Returns projects starred by the given user (paginated). */
-  getStarred(user: string, options?: GetProjectsOptions): Promise<PaginatedResult<ProjectCompact>> {
+  getStarred(user: string, options?: GetUserProjectsOptions): Promise<PaginatedResult<ProjectCompact>> {
     return this.core.requestJson<PaginatedResult<ProjectCompact>>(
-      `v1/projects/${encodeURIComponent(user)}/starred`,
+      `v1/users/${encodeURIComponent(user)}/starred`,
       { query: options },
     );
   }
 
   /** Returns projects watched by the given user (paginated). */
-  getWatching(user: string, options?: GetProjectsOptions): Promise<PaginatedResult<ProjectCompact>> {
+  getWatching(user: string, options?: GetUserProjectsOptions): Promise<PaginatedResult<ProjectCompact>> {
     return this.core.requestJson<PaginatedResult<ProjectCompact>>(
-      `v1/projects/${encodeURIComponent(user)}/watching`,
+      `v1/users/${encodeURIComponent(user)}/watching`,
       { query: options },
     );
   }

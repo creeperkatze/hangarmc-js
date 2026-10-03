@@ -12,11 +12,11 @@ export class PagesApi {
     );
   }
 
-  /** Returns the content of a project wiki page. */
-  get(author: string, slug: string, path?: string): Promise<string> {
+  /** Returns the content of a project wiki page. An empty `path` returns the main page. */
+  get(author: string, slug: string, path: string): Promise<string> {
     return this.core.requestText(
       `v1/pages/page/${encodeURIComponent(author)}/${encodeURIComponent(slug)}`,
-      { query: path ? { path } : undefined },
+      { query: { path } },
     );
   }
 
@@ -33,14 +33,6 @@ export class PagesApi {
     return this.core.requestVoid(
       `v1/pages/editmain/${encodeURIComponent(author)}/${encodeURIComponent(slug)}`,
       { method: 'PATCH', body: { content }, authenticated: true },
-    );
-  }
-
-  /** Deletes a project wiki page. Requires edit_page permission. */
-  delete(author: string, slug: string, path: string): Promise<void> {
-    return this.core.requestVoid(
-      `v1/pages/delete/${encodeURIComponent(author)}/${encodeURIComponent(slug)}`,
-      { method: 'DELETE', query: { path }, authenticated: true },
     );
   }
 }

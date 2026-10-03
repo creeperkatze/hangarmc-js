@@ -24,15 +24,21 @@ export interface User {
 
 /** Query parameters for searching users. */
 export interface GetUsersOptions extends PaginationOptions {
+  /** The search query. */
+  query?: string;
   sort?: 'name' | 'createdAt' | 'projectCount' | 'locked' | 'org' | 'roles';
 }
 
 /** Query parameters for listing project authors. */
 export interface GetAuthorsOptions extends PaginationOptions {
+  /** The search query. */
+  query?: string;
   sort?: 'name' | 'createdAt' | 'projectCount';
 }
 
 /** Query parameters for listing staff members. */
 export interface GetStaffOptions extends PaginationOptions {
+  /** The search query. */
+  query?: string;
   sort?: 'name' | 'createdAt' | 'roles';
 }

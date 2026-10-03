@@ -12,14 +12,14 @@ describe('PagesApi', () => {
     expect(mockFetch.lastCall()?.url).toContain('/api/v1/pages/main/PaperMC/TestPlugin');
   });
 
-  it('fetches a wiki page content as text', async () => {
+  it('always sends the path, even when empty (main page)', async () => {
     const { client, mockFetch } = createTestClient([textResponse('## Wiki Page')]);
-    const content = await client.pages.get('PaperMC', 'TestPlugin');
+    const content = await client.pages.get('PaperMC', 'TestPlugin', '');
     expect(content).toBe('## Wiki Page');
-    expect(mockFetch.lastCall()?.url).toContain('/api/v1/pages/page/PaperMC/TestPlugin');
+    expect(mockFetch.lastCall()?.url).toMatch(/\/api\/v1\/pages\/page\/PaperMC\/TestPlugin\?path=$/);
   });
 
-  it('appends optional path query parameter', async () => {
+  it('appends the path query parameter', async () => {
     const { client, mockFetch } = createTestClient([textResponse('## Sub Page')]);
     await client.pages.get('PaperMC', 'TestPlugin', 'docs/setup');
     expect(mockFetch.lastCall()?.url).toContain('path=docs%2Fsetup');
@@ -56,16 +56,5 @@ describe('PagesApi', () => {
     expect(call?.url).toContain('/api/v1/pages/editmain/PaperMC/TestPlugin');
     expect(call?.headers.get('Authorization')).toBe('HangarAuth test-jwt');
     expect(await call?.json()).toEqual({ content: '# Main' });
-  });
-
-  it('deletes a page with DELETE and requires auth', async () => {
-    const { client, mockFetch } = createTestClient([
-      jsonResponse(MOCK_JWT),
-      new Response(null, { status: 204 }),
-    ]);
-    await expect(client.pages.delete('PaperMC', 'TestPlugin', 'docs/old')).resolves.toBeUndefined();
-    expect(mockFetch.lastCall()?.method).toBe('DELETE');
-    expect(mockFetch.lastCall()?.url).toContain('/api/v1/pages/delete/PaperMC/TestPlugin');
-    expect(mockFetch.lastCall()?.url).toContain('path=');
   });
 });

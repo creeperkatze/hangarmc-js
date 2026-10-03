@@ -5,15 +5,10 @@ import type { Platform, PlatformVersion } from '../types/index.js';
 export class PlatformsApi {
   constructor(private readonly core: HangarClientCore) {}
 
-  /** Returns all supported platforms and their data. */
-  list(): Promise<Record<Platform, PlatformVersion[]>> {
-    return this.core.requestJson<Record<Platform, PlatformVersion[]>>('v1/platforms');
-  }
-
-  /** Returns all supported versions for a specific platform. */
+  /** Returns all supported versions for a specific platform, including their sub-versions. */
   getVersions(platform: Platform | string): Promise<PlatformVersion[]> {
     return this.core.requestJson<PlatformVersion[]>(
-      `v1/platforms/${encodeURIComponent(platform)}`,
+      `v1/platforms/${encodeURIComponent(platform)}/versions`,
     );
   }
 }

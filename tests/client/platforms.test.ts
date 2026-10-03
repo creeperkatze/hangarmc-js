@@ -9,17 +9,9 @@ const MOCK_PLATFORM_VERSIONS: PlatformVersion[] = [
 ];
 
 describe('PlatformsApi', () => {
-  it('returns all platforms and their versions', async () => {
-    const data = { PAPER: MOCK_PLATFORM_VERSIONS };
-    const { client, mockFetch } = createTestClient([jsonResponse(data)]);
-    const result = await client.platforms.list();
-    expect(result).toEqual(data);
-    expect(mockFetch.lastCall()?.url).toContain('/api/v1/platforms');
-  });
-
   it('does not require authentication', async () => {
-    const { client, mockFetch } = createTestClient([jsonResponse({ PAPER: [] })]);
-    await client.platforms.list();
+    const { client, mockFetch } = createTestClient([jsonResponse([])]);
+    await client.platforms.getVersions('PAPER');
     expect(mockFetch.callCount()).toBe(1);
     expect(mockFetch.lastCall()?.headers.get('Authorization')).toBeNull();
   });
@@ -28,7 +20,7 @@ describe('PlatformsApi', () => {
     const { client, mockFetch } = createTestClient([jsonResponse(MOCK_PLATFORM_VERSIONS)]);
     const versions = await client.platforms.getVersions('PAPER');
     expect(versions).toEqual(MOCK_PLATFORM_VERSIONS);
-    expect(mockFetch.lastCall()?.url).toContain('/api/v1/platforms/PAPER');
+    expect(mockFetch.lastCall()?.url).toMatch(/\/api\/v1\/platforms\/PAPER\/versions$/);
   });
 
   it('encodes the platform name in the URL', async () => {

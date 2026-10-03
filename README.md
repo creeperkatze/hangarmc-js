@@ -72,16 +72,15 @@ Auth:
 - `client.auth.authenticate(apiKey)`
 
 Keys:
-- `client.keys.list(user)`
-- `client.keys.create(user, form)`
-- `client.keys.delete(user, name)`
+- `client.keys.list()`
+- `client.keys.create(form)`
+- `client.keys.delete(name)`
 
 Pages:
 - `client.pages.getMain(author, slug)`
-- `client.pages.get(author, slug, path?)`
+- `client.pages.get(author, slug, path)`
 - `client.pages.edit(author, slug, form)`
 - `client.pages.editMain(author, slug, content)`
-- `client.pages.delete(author, slug, path)`
 
 Permissions:
 - `client.permissions.get(options?)`
@@ -89,7 +88,6 @@ Permissions:
 - `client.permissions.hasAny(options)`
 
 Platforms:
-- `client.platforms.list()`
 - `client.platforms.getVersions(platform)`
 
 Projects:
@@ -99,7 +97,6 @@ Projects:
 - `client.projects.getMembers(author, slug, options?)`
 - `client.projects.getStargazers(author, slug, options?)`
 - `client.projects.getWatchers(author, slug, options?)`
-- `client.projects.getChannels(author, slug)`
 - `client.projects.getPinned(user)`
 - `client.projects.getStarred(user, options?)`
 - `client.projects.getWatching(user, options?)`
@@ -114,8 +111,6 @@ Versions:
 - `client.versions.list(author, slug, options?)`
 - `client.versions.get(author, slug, name)`
 - `client.versions.create(author, slug, data, files?)`
-- `client.versions.delete(author, slug, name)`
-- `client.versions.restore(author, slug, name)`
 - `client.versions.getStats(author, slug, name, options)`
 - `client.versions.getDownloadUrl(author, slug, name, platform)`
 - `client.versions.download(author, slug, name, platform)`
@@ -130,7 +125,7 @@ const client = new HangarClient({
 });
 
 // JWT is fetched and cached automatically
-const keys = await client.keys.list('YourUsername');
+const keys = await client.keys.list();
 ```
 
 The token is refreshed automatically when it expires (with a 5-second buffer).

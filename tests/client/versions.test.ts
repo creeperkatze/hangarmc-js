@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { createTestClient } from '../utils/client.js';
-import { jsonResponse, textResponse } from '../utils/http.js';
-import type { Version, DayProjectStats } from '../../src/types/index.js';
+import { jsonResponse } from '../utils/http.js';
+import { HangarError } from '../../src/errors.js';
+import type { Version, VersionStats } from '../../src/types/index.js';
 
 const MOCK_JWT = { token: 'test-jwt', expiresIn: 3_600_000 };
 
@@ -48,66 +49,68 @@ describe('VersionsApi', () => {
     expect(mockFetch.lastCall()?.url).toContain('/api/v1/projects/PaperMC/TestPlugin/versions/1.0.0');
   });
 
-  it('creates a version with FormData and requires auth', async () => {
-    const { client, mockFetch } = createTestClient([
-      jsonResponse(MOCK_JWT),
-      new Response(null, { status: 201 }),
-    ]);
-    await expect(
-      client.versions.create('PaperMC', 'TestPlugin', {
-        channel: { name: 'Release', color: '#22c55e' },
-        platformDependencies: { PAPER: ['1.21'] },
-        pluginDependencies: {},
-      }),
-    ).resolves.toBeUndefined();
-    expect(mockFetch.lastCall()?.method).toBe('POST');
-    expect(mockFetch.lastCall()?.url).toContain('/api/v1/projects/PaperMC/TestPlugin/versions');
+  it('uploads a version as multipart form data and requires auth', async () => {
+    const uploaded = { url: 'https://hangar.papermc.io/PaperMC/TestPlugin/versions/1.0.1' };
+    const { client, mockFetch } = createTestClient([jsonResponse(MOCK_JWT), jsonResponse(uploaded)]);
+    const data = {
+      version: '1.0.1',
+      channel: 'Release',
+      files: [{ platforms: ['PAPER' as const] }],
+      platformDependencies: { PAPER: ['1.21'] },
+    };
+    const result = await client.versions.create('PaperMC', 'TestPlugin', data, [new Blob(['jar'])]);
+    expect(result).toEqual(uploaded);
+
+    const call = mockFetch.lastCall();
+    expect(call?.method).toBe('POST');
+    expect(call?.url).toMatch(/\/api\/v1\/projects\/PaperMC\/TestPlugin\/upload$/);
+    expect(call?.headers.get('Authorization')).toBe('HangarAuth test-jwt');
+    const form = await call!.formData();
+    expect(JSON.parse(await (form.get('versionUpload') as Blob).text())).toEqual(data);
+    expect(form.getAll('files')).toHaveLength(1);
+  });
+
+  it('fetches daily stats for a version with auth', async () => {
+    const stats: Record<string, VersionStats> = {
+      '2024-01-01': { totalDownloads: 5, platformDownloads: { PAPER: 5 } },
+    };
+    const { client, mockFetch } = createTestClient([jsonResponse(MOCK_JWT), jsonResponse(stats)]);
+    const result = await client.versions.getStats('PaperMC', 'TestPlugin', '1.0.0', {
+      fromDate: '2024-01-01T00:00:00Z',
+      toDate: '2024-01-31T00:00:00Z',
+    });
+    expect(result).toEqual(stats);
+    expect(mockFetch.lastCall()?.url).toContain('/api/v1/projects/PaperMC/TestPlugin/versions/1.0.0/stats');
+    expect(mockFetch.lastCall()?.url).toContain('fromDate=2024-01-01T00%3A00%3A00Z');
     expect(mockFetch.lastCall()?.headers.get('Authorization')).toBe('HangarAuth test-jwt');
   });
 
-  it('deletes a version with DELETE and requires auth', async () => {
-    const { client, mockFetch } = createTestClient([
-      jsonResponse(MOCK_JWT),
-      new Response(null, { status: 204 }),
-    ]);
-    await expect(client.versions.delete('PaperMC', 'TestPlugin', '1.0.0')).resolves.toBeUndefined();
-    expect(mockFetch.lastCall()?.method).toBe('DELETE');
-    expect(mockFetch.lastCall()?.url).toContain('/api/v1/projects/PaperMC/TestPlugin/versions/1.0.0');
-  });
-
-  it('restores a version with POST and requires auth', async () => {
-    const { client, mockFetch } = createTestClient([
-      jsonResponse(MOCK_JWT),
-      new Response(null, { status: 200 }),
-    ]);
-    await expect(client.versions.restore('PaperMC', 'TestPlugin', '1.0.0')).resolves.toBeUndefined();
-    expect(mockFetch.lastCall()?.method).toBe('POST');
-    expect(mockFetch.lastCall()?.url).toContain('/api/v1/projects/PaperMC/TestPlugin/versions/1.0.0/restore');
-  });
-
-  it('fetches daily stats for a version', async () => {
-    const stats: Record<string, DayProjectStats> = {
-      '2024-01-01': { views: 10, downloads: 5 },
+  it('resolves the Hangar download URL from the version', async () => {
+    const version: Version = {
+      ...MOCK_VERSION,
+      downloads: { PAPER: { downloadUrl: 'https://hangarcdn.papermc.io/file.jar', externalUrl: null } },
     };
-    const { client, mockFetch } = createTestClient([jsonResponse(stats)]);
-    const result = await client.versions.getStats('PaperMC', 'TestPlugin', '1.0.0', {
-      fromDate: '2024-01-01',
-      toDate: '2024-01-31',
-    });
-    expect(result).toEqual(stats);
-    expect(mockFetch.lastCall()?.url).toContain('fromDate=2024-01-01');
-    expect(mockFetch.lastCall()?.url).toContain('toDate=2024-01-31');
+    const { client, mockFetch } = createTestClient([jsonResponse(version)]);
+    const url = await client.versions.getDownloadUrl('PaperMC', 'TestPlugin', '1.0.0', 'PAPER');
+    expect(url).toBe('https://hangarcdn.papermc.io/file.jar');
+    expect(mockFetch.lastCall()?.url).toMatch(/\/api\/v1\/projects\/PaperMC\/TestPlugin\/versions\/1\.0\.0$/);
   });
 
-  it('fetches the download URL as text', async () => {
-    const { client, mockFetch } = createTestClient([
-      textResponse('https://cdn.hangar.papermc.io/download/file.jar'),
-    ]);
+  it('falls back to the external download URL', async () => {
+    const version: Version = {
+      ...MOCK_VERSION,
+      downloads: { PAPER: { downloadUrl: null, externalUrl: 'https://example.com/file.jar' } },
+    };
+    const { client } = createTestClient([jsonResponse(version)]);
     const url = await client.versions.getDownloadUrl('PaperMC', 'TestPlugin', '1.0.0', 'PAPER');
-    expect(url).toBe('https://cdn.hangar.papermc.io/download/file.jar');
-    expect(mockFetch.lastCall()?.url).toContain(
-      '/api/v1/projects/PaperMC/TestPlugin/versions/1.0.0/PAPER/download',
-    );
+    expect(url).toBe('https://example.com/file.jar');
+  });
+
+  it('throws when the version has no download for the platform', async () => {
+    const { client } = createTestClient([jsonResponse(MOCK_VERSION)]);
+    await expect(
+      client.versions.getDownloadUrl('PaperMC', 'TestPlugin', '1.0.0', 'VELOCITY'),
+    ).rejects.toThrow(HangarError);
   });
 
   it('downloads a version file as an ArrayBuffer', async () => {
